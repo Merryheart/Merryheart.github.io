@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mma · Health Data Analyst</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0f0d;
+      --bg2: #0f1a14;
+      --bg3: #142019;
+      --teal: #3ddc97;
+      --teal-dim: #2aab74;
+      --cream: #f0ebe0;
+      --muted: #7a9485;
+      --red-accent: #e05252;
+      --card-bg: #111d16;
+      --border: rgba(61,220,151,0.15);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--cream);
+      font-family: 'Sora', sans-serif;
+      font-weight: 300;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* NOISE TEXTURE */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.4rem 4rem;
+      background: rgba(10,15,13,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.3rem;
+      color: var(--teal);
+      letter-spacing: 0.02em;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--teal); }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      padding: 8rem 4rem 4rem;
+      position: relative;
+      gap: 4rem;
+    }
+
+    .hero-text { position: relative; z-index: 1; }
+
+    .hero-eyebrow {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--teal);
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.2s forwards;
+    }
+
+    .hero-name {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(3rem, 6vw, 5.5rem);
+      line-height: 1.05;
+      color: var(--cream);
+      margin-bottom: 1rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.4s forwards;
+    }
+
+    .hero-name em {
+      font-style: italic;
+      color: var(--teal);
+    }
+
+    .hero-tagline {
+      font-size: 1.05rem;
+      color: var(--muted);
+      max-width: 420px;
+      margin-bottom: 2.5rem;
+      line-height: 1.8;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.6s forwards;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.8s forwards;
+    }
+
+    .btn-primary {
+      background: var(--teal);
+      color: var(--bg);
+      padding: 0.75rem 1.8rem;
+      border-radius: 2px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .btn-primary:hover {
+      background: var(--teal-dim);
+      transform: translateY(-2px);
+    }
+
+    .btn-ghost {
+      border: 1px solid var(--border);
+      color: var(--cream);
+      padding: 0.75rem 1.8rem;
+      border-radius: 2px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      text-decoration: none;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--teal);
+      color: var(--teal);
+    }
+
+    /* HERO VISUAL */
+    .hero-visual {
+      position: relative;
+      z-index: 1;
+      opacity: 0;
+      animation: fadeIn 1.2s ease 0.6s forwards;
+    }
+
+    .data-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .data-card-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 0.5rem;
+    }
+
+    .data-card-value {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2.2rem;
+      color: var(--teal);
+    }
+
+    .data-card-sub {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.2rem;
+    }
+
+    .bar-chart {
+      margin-top: 1rem;
+    }
+
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .bar-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--muted);
+      width: 80px;
+      flex-shrink: 0;
+    }
+
+    .bar-track {
+      flex: 1;
+      height: 6px;
+      background: rgba(61,220,151,0.1);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--teal);
+      border-radius: 2px;
+      transform-origin: left;
+      animation: barGrow 1.2s ease forwards;
+      animation-delay: var(--delay, 1s);
+      transform: scaleX(0);
+    }
+
+    /* SECTION BASE */
+    section {
+      padding: 6rem 4rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .section-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--teal);
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: 1.1;
+      margin-bottom: 1rem;
+    }
+
+    .section-title em {
+      font-style: italic;
+      color: var(--teal);
+    }
+
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: var(--border);
+      margin: 0 4rem;
+      width: calc(100% - 8rem);
+    }
+
+    /* ABOUT */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      margin-top: 3rem;
+      align-items: start;
+    }
+
+    .about-text p {
+      color: var(--muted);
+      margin-bottom: 1.2rem;
+      font-size: 0.95rem;
+      line-height: 1.9;
+    }
+
+    .about-text p strong {
+      color: var(--cream);
+      font-weight: 500;
+    }
+
+    .skills-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .skill-group-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--teal);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 0.6rem;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.62rem;
+      padding: 0.3rem 0.7rem;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    .tag.teal {
+      border-color: rgba(61,220,151,0.4);
+      color: var(--teal);
+      background: rgba(61,220,151,0.06);
+    }
+
+    /* PROJECTS */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+
+    .project-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2rem;
+      transition: border-color 0.2s, transform 0.2s;
+      text-decoration: none;
+      display: block;
+    }
+
+    .project-card:hover {
+      border-color: var(--teal);
+      transform: translateY(-4px);
+    }
+
+    .project-tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--teal);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 0.8rem;
+      display: block;
+    }
+
+    .project-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.4rem;
+      color: var(--cream);
+      margin-bottom: 0.8rem;
+      line-height: 1.2;
+    }
+
+    .project-desc {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.8;
+      margin-bottom: 1.2rem;
+    }
+
+    .project-tech {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .tech-pill {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      padding: 0.2rem 0.6rem;
+      background: rgba(61,220,151,0.08);
+      border: 1px solid rgba(61,220,151,0.2);
+      color: var(--teal);
+      border-radius: 20px;
+    }
+
+    .project-card.featured {
+      grid-column: span 2;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .project-card.featured .project-visual {
+      background: rgba(61,220,151,0.04);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 1.5rem;
+      height: 100%;
+      min-height: 160px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .mini-stat {
+      margin-bottom: 1rem;
+    }
+
+    .mini-stat-num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.8rem;
+      color: var(--teal);
+    }
+
+    .mini-stat-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    /* CONTACT */
+    .contact-section {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .contact-inner {
+      max-width: 600px;
+    }
+
+    .contact-links {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .contact-link {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 0.9rem;
+      transition: color 0.2s;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .contact-link:hover { color: var(--teal); }
+
+    .contact-link-icon {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--teal);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      width: 80px;
+      flex-shrink: 0;
+    }
+
+    /* FOOTER */
+    footer {
+      padding: 2rem 4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border);
+    }
+
+    footer p {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+    }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes barGrow {
+      from { transform: scaleX(0); }
+      to { transform: scaleX(1); }
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      nav { padding: 1.2rem 1.5rem; }
+      .nav-links { display: none; }
+      .hero { grid-template-columns: 1fr; padding: 7rem 1.5rem 3rem; gap: 2.5rem; }
+      section { padding: 4rem 1.5rem; }
+      .about-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+      .projects-grid { grid-template-columns: 1fr; }
+      .project-card.featured { grid-column: span 1; grid-template-columns: 1fr; }
+      .divider { margin: 0 1.5rem; width: calc(100% - 3rem); }
+      footer { padding: 1.5rem; flex-direction: column; gap: 0.5rem; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-logo">Mma.data</div>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-text">
+      <p class="hero-eyebrow">Health Data Analyst · Nigeria</p>
+      <h1 class="hero-name">
+        Data that<br/><em>moves</em><br/>public health
+      </h1>
+      <p class="hero-tagline">
+        I'm Mma — a Public Health graduate turning complex health system data into evidence that drives decisions. HIV/TB programs, immunization, MCH, and M&E.
+      </p>
+      <div class="hero-cta">
+        <a href="#projects" class="btn-primary">View My Work</a>
+        <a href="#contact" class="btn-ghost">Get In Touch</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="data-card">
+        <div class="data-card-label">TB Dataset — KNCV Nigeria</div>
+        <div class="data-card-value">60K+</div>
+        <div class="data-card-sub">patient records analyzed</div>
+        <div class="bar-chart">
+          <div class="bar-row">
+            <span class="bar-label">Treatment Success</span>
+            <div class="bar-track"><div class="bar-fill" style="width:82%; --delay:1s"></div></div>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">Lost to Follow-up</span>
+            <div class="bar-track"><div class="bar-fill" style="width:11%; --delay:1.2s"></div></div>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">Treatment Failed</span>
+            <div class="bar-track"><div class="bar-fill" style="width:7%; --delay:1.4s"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="data-card" style="display:flex; gap:2rem;">
+        <div>
+          <div class="data-card-label">Tools</div>
+          <div class="data-card-value" style="font-size:1.4rem;">Python · SQL</div>
+          <div class="data-card-sub">Power BI · Power Query</div>
+        </div>
+        <div>
+          <div class="data-card-label">Domain</div>
+          <div class="data-card-value" style="font-size:1.4rem;">M&E</div>
+          <div class="data-card-sub">Global Health · NGO</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <p class="section-label">Background</p>
+    <h2 class="section-title">Public health first,<br/><em>data always</em></h2>
+    <div class="about-grid">
+      <div class="about-text">
+        <p>
+          I hold a B.Sc. in <strong>Public Health from the University of Calabar</strong>, with hands-on experience in health data at IPGH — working across HIV/TB programs, immunization campaigns, and maternal and child health data systems.
+        </p>
+        <p>
+          My approach to data is rooted in knowing what the numbers represent: real patients, real communities, real outcomes. That context shapes how I clean, analyze, model, and communicate findings.
+        </p>
+        <p>
+          I'm actively building toward M&E and health analytics roles with global health organizations — combining <strong>technical depth in Python, SQL, and Power BI</strong> with domain knowledge that most data analysts don't have.
+        </p>
+      </div>
+      <div class="skills-grid">
+        <div>
+          <div class="skill-group-label">Analytics & Engineering</div>
+          <div class="tags">
+            <span class="tag teal">Python</span>
+            <span class="tag teal">SQL</span>
+            <span class="tag teal">pandas</span>
+            <span class="tag teal">scikit-learn</span>
+            <span class="tag teal">Power Query</span>
+            <span class="tag teal">MLflow</span>
+          </div>
+        </div>
+        <div>
+          <div class="skill-group-label">Visualization</div>
+          <div class="tags">
+            <span class="tag teal">Power BI</span>
+            <span class="tag teal">DAX</span>
+            <span class="tag">Matplotlib</span>
+            <span class="tag">Seaborn</span>
+          </div>
+        </div>
+        <div>
+          <div class="skill-group-label">Public Health Domains</div>
+          <div class="tags">
+            <span class="tag teal">HIV/TB Programs</span>
+            <span class="tag teal">M&E</span>
+            <span class="tag teal">Immunization</span>
+            <span class="tag teal">MCH Data</span>
+            <span class="tag teal">EMR Systems</span>
+            <span class="tag">DQA</span>
+          </div>
+        </div>
+        <div>
+          <div class="skill-group-label">Currently Learning</div>
+          <div class="tags">
+            <span class="tag">Machine Learning</span>
+            <span class="tag">Data Science</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- PROJECTS -->
+  <section id="projects">
+    <p class="section-label">Portfolio</p>
+    <h2 class="section-title">Work that <em>means</em> something</h2>
+    <div class="projects-grid">
+
+      <a class="project-card featured" href="https://github.com/Merryheart/kncv-nigeria-tb-analysis" target="_blank">
+        <div>
+          <span class="project-tag">Featured · TB Analytics</span>
+          <div class="project-title">KNCV Nigeria TB Patient Journey Analysis</div>
+          <p class="project-desc">
+            End-to-end analysis of tuberculosis patient outcomes — from data ingestion and cleaning to predictive modeling and dashboard. Built a logistic regression model to predict treatment success and a full Power BI dashboard in KNCV brand colors.
+          </p>
+          <div class="project-tech">
+            <span class="tech-pill">Python</span>
+            <span class="tech-pill">pandas</span>
+            <span class="tech-pill">scikit-learn</span>
+            <span class="tech-pill">Power BI</span>
+            <span class="tech-pill">DAX</span>
+          </div>
+        </div>
+        <div class="project-visual">
+          <div class="mini-stat">
+            <div class="mini-stat-num">60,000+</div>
+            <div class="mini-stat-label">Synthetic patient records</div>
+          </div>
+          <div class="mini-stat">
+            <div class="mini-stat-num">3 phases</div>
+            <div class="mini-stat-label">Cleaning · EDA · Modeling</div>
+          </div>
+          <div class="mini-stat">
+            <div class="mini-stat-num">LR model</div>
+            <div class="mini-stat-label">Logistic regression · treatment outcome prediction</div>
+          </div>
+        </div>
+      </a>
+
+      <a class="project-card" href="https://github.com/Merryheart/nigeria-pharma-supply-chain" target="_blank">
+        <span class="project-tag">Supply Chain · Pharma</span>
+        <div class="project-title">Nigeria Pharma Supply Chain Analysis</div>
+        <p class="project-desc">
+          Supply chain analytics modeled on Bloom Public Health's data approach — tracking stock availability, distribution gaps, and facility-level trends across Nigeria.
+        </p>
+        <div class="project-tech">
+          <span class="tech-pill">Python</span>
+          <span class="tech-pill">SQL</span>
+          <span class="tech-pill">Power BI</span>
+        </div>
+      </a>
+
+      <div class="project-card" style="border-style: dashed; opacity: 0.5; cursor: default;">
+        <span class="project-tag">Coming Soon</span>
+        <div class="project-title">Population Health Analytics Dashboard</div>
+        <p class="project-desc">
+          Multi-page Power BI dashboard with advanced DAX measures and calculated columns — built from scratch.
+        </p>
+        <div class="project-tech">
+          <span class="tech-pill">Power BI</span>
+          <span class="tech-pill">DAX</span>
+          <span class="tech-pill">Power Query</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- CONTACT -->
+  <section id="contact" class="contact-section">
+    <p class="section-label">Let's Talk</p>
+    <div class="contact-inner">
+      <h2 class="section-title">Open to <em>opportunities</em></h2>
+      <p style="color:var(--muted); font-size:0.9rem; margin-top:1rem; max-width:440px;">
+        I'm actively looking for remote or part-time M&E and health data roles with global health organizations. If my work resonates with what your team does — reach out.
+      </p>
+      <div class="contact-links">
+        <a href="https://linkedin.com/in/merryheart-peter-5012a7264" target="_blank" class="contact-link">
+          <span class="contact-link-icon">LinkedIn</span>
+          linkedin.com/in/merryheart-peter-5012a7264
+        </a>
+        <a href="https://github.com/Merryheart" target="_blank" class="contact-link">
+          <span class="contact-link-icon">GitHub</span>
+          github.com/Merryheart
+        </a>
+        <a href="mailto:merryheart2019@gmail.com" class="contact-link">
+          <span class="contact-link-icon">Email</span>
+          merryheart2019@gmail.com
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p
