@@ -1,0 +1,55 @@
+<svg xmlns="http://w3.org" width="320" height="40" viewBox="0 0 320 40">
+  <style>
+    .text {
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: bold;
+      font-size: 24px;
+      fill: #24292f;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .text {
+        fill: #c9d1d9;
+      }
+    }
+
+    /* Mask container for the typing animation */
+    .typing-rect {
+      animation: typing 4s steps(19, end) infinite;
+    }
+
+    /* Moving line for the flashing cursor */
+    .cursor-line {
+      stroke: #58a6ff;
+      stroke-width: 3;
+      animation: typing 4s steps(19, end) infinite, blink 0.75s step-end infinite;
+    }
+
+    @keyframes typing {
+      0%, 10% { transform: translateX(-290px); }
+      70%, 90% { transform: translateX(0px); }
+      100% { transform: translateX(-290px); }
+    }
+
+    @keyframes blink {
+      from, to { opacity: 0; }
+      50% { opacity: 1; }
+    }
+  </style>
+
+  <defs>
+    <!-- Mask to hide/reveal the text -->
+    <clipPath id="reveal-text">
+      <rect class="typing-rect" x="10" y="0" width="290" height="40" />
+    </clipPath>
+  </defs>
+
+  <!-- The actual text element -->
+  <g clip-path="url(#reveal-text)">
+    <text x="10" y="28" class="text">Hi, I'm Merryheart</text>
+  </g>
+
+  <!-- The blinking cursor following the text edge -->
+  <line class="cursor-line" x1="300" y1="8" x2="300" y2="32" />
+</svg>
+f
